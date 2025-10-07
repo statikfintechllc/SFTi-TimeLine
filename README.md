@@ -34,7 +34,7 @@ export GITHUB_TOKEN="ghp_yourtokenhere"
 ```
 **Then**:
 ```bash
-./scripts/list_and_clone_repos.sh statikfintechllc ./repos
+./scripts/list_repos_api.sh statikfintechllc repos_metadata.csv
 ```
 **Then**:
 ```bash
