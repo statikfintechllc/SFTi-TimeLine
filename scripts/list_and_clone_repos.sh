@@ -3,10 +3,10 @@ set -euo pipefail
 
 # Usage:
 #   export GITHUB_TOKEN="ghp_xxx"
-#   ./scripts/list_and_clone_repos.sh statikfintechllc ./repos
+#   ./scripts/list_repos_api.sh statikfintechllc ./repos_metadata.csv
 
-ORG="$1"       # e.g., statikfintechllc
-OUTDIR="${2:-./repos}"
+ORG="$1"      # e.g., statikfintechllc
+OUTFILE="${2:-./repos_metadata.csv}"
 PER_PAGE=100
 
 if [[ -z "${GITHUB_TOKEN:-}" ]]; then
@@ -14,31 +14,30 @@ if [[ -z "${GITHUB_TOKEN:-}" ]]; then
   exit 1
 fi
 
-mkdir -p "$OUTDIR"
+echo "repo_name,created_at,pushed_at,updated_at,clone_url,html_url,description" > "$OUTFILE"
 
 page=1
 while :; do
-  echo "Listing page $page..."
+  echo "Fetching page $page..."
   resp=$(curl -s -H "Authorization: token $GITHUB_TOKEN" \
-       "https://api.github.com/orgs/$ORG/repos?per_page=$PER_PAGE&page=$page")
+       "https://api.github.com/users/$ORG/repos?per_page=$PER_PAGE&page=$page")
 
   count=$(echo "$resp" | jq 'length')
-  if [[ "$count" -eq 0 ]]; then
+  if [[ "$count" -eq 0 || "$count" == "null" ]]; then
     break
   fi
 
-  echo "$resp" | jq -r '.[].clone_url' | while read -r clone_url; do
-    repo_name=$(basename -s .git "$clone_url")
-    target="$OUTDIR/$repo_name"
-    if [[ -d "$target/.git" ]]; then
-      echo "Already cloned: $repo_name"
-      continue
-    fi
-    echo "Cloning $repo_name ..."
-    git clone --depth 1 "$clone_url" "$target" || echo "clone failed for $repo_name"
-  done
+  echo "$resp" | jq -r '.[] | [
+    .name,
+    .created_at,
+    .pushed_at,
+    .updated_at,
+    .clone_url,
+    .html_url,
+    (.description // "")
+  ] | @csv' >> "$OUTFILE"
 
   page=$((page+1))
 done
 
-echo "Done. Cloned repos are in $OUTDIR"
+echo "Done. Wrote $OUTFILE"
