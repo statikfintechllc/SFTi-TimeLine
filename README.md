@@ -1,46 +1,43 @@
-## Evidence repo generator
+# SFTi-TimeLine
 
-**Purpose**:
-- Ingest timeline_base.csv (your Medium + Zenodo items)
-- Auto-list and clone all GitHub repos for org/user statikfintechllc
-- Extract first-commit timestamps for each repo
-- Produce evidence/timeline.csv (combined, sorted by date)
+## Purpose
+Reproducible, timestamp-verified chronology for all StatikFinTech, LLC outputs — Medium, Zenodo, and GitHub — combined into one auditable dataset.
 
-**Requirements**:
-- Linux or macOS with git, curl, jq, python3 (3.10+)
-- A GitHub Personal Access Token (PAT) with public_repo or repo scope
-- Enough disk space for cloning repos (shallow clones minimize space)
+## Requirements
+- Linux/macOS with `git`, `curl`, `jq`, `python3 (3.10+)`
+- GitHub Personal Access Token with `public_repo` or `repo` scope
 
-**Steps**:
-1) Put your provided timeline_base.csv at repo root (I already generated a prefilled version).
-2) export GITHUB_TOKEN="ghp_xxx"
-3) ./scripts/list_and_clone_repos.sh statikfintechllc ./repos
-4) ./scripts/first_commit_extractor.sh ./repos ./first_commits.csv
-5) python3 scripts/build_evidence_timeline.py timeline_base.csv first_commits.csv evidence/timeline.csv
+## Steps
 
-**Expected outputs**:
-- first_commits.csv (repo,first_commit_iso,...)
-- evidence/timeline.csv (combined timeline)
-
----
-
-### How to run)
-
-Run these commands in a terminal at repo root (assumes scripts are executable):
-
-**First**:
+1. Prepare base:
+   - Ensure `SFTi_TimeLine.csv` (Medium + Zenodo or whatever you choose) is in repo root.
+   - Export your GitHub token:  
 ```bash
-export GITHUB_TOKEN="ghp_yourtokenhere"
+   export GITHUB_TOKEN="ghp_xxx"
 ```
-**Then**:
+2. Fetch live GitHub metadata:
 ```bash
-./scripts/list_repos_api.sh statikfintechllc repos_metadata.csv
+   ./scripts/list_and_clone_repos.sh statikfintechllc repos_metadata.csv
 ```
-**Then**:
+3. (Optional) Extract first-commit provenance:
 ```bash
-./scripts/first_commit_extractor.sh ./repos ./First_Commits.csv
+   ./scripts/first_commit_extractor.sh ./repos ./First_Commits.csv
 ```
-**Finally**:
+4. Build unified evidence timeline:
 ```bash
-python3 scripts/build_evidence_timeline.py SFTi_TimeLine.csv First_Commits.csv evidence/timeline.csv
+   python3 scripts/build_evidence_timeline.py SFTi_TimeLine.csv repos_metadata.csv evidence/timeline.csv
 ```
+   - Or, using commit provenance:  
+```bash
+   python3 scripts/build_evidence_timeline.py SFTi_TimeLine.csv First_Commits.csv evidence/timeline.csv
+```
+## Outputs
+- `repos_metadata.csv` — live GitHub repo metadata  
+- `First_Commits.csv` — oldest verifiable commit timestamps  
+- `evidence/timeline.csv` — full merged, date-sorted, machine-verifiable record
+
+## Notes
+- Works for both user and org accounts.
+- Safe to rerun (auto-overwrite cleanly).
+- Folders auto-created.
+- ISO-8601 dates ensure chronological sort.

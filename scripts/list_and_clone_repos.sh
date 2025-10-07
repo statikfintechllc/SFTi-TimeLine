@@ -3,7 +3,7 @@ set -euo pipefail
 
 # Usage:
 #   export GITHUB_TOKEN="ghp_xxx"
-#   ./scripts/list_repos_api.sh statikfintechllc ./repos_metadata.csv
+#   ./scripts/list_and_clone_repos.sh statikfintechllc ./repos_metadata.csv
 
 ORG="$1"      # e.g., statikfintechllc
 OUTFILE="${2:-./repos_metadata.csv}"
