@@ -24,47 +24,52 @@ out_csv = sys.argv[3]
 
 # load base
 entries = []
-with open(base_csv, newline='', encoding='utf-8') as f:
+with open(base_csv, newline="", encoding="utf-8") as f:
     rdr = csv.DictReader(f)
     for r in rdr:
         entries.append(r)
 
 # load repos
 repo_map = {}
-with open(commits_csv, newline='', encoding='utf-8') as f:
+with open(commits_csv, newline="", encoding="utf-8") as f:
     rdr = csv.DictReader(f)
     for r in rdr:
-        key = r.get('repo') or r.get('repo_name')
+        key = r.get("repo") or r.get("repo_name")
         if key:
             repo_map[key] = r
 
 # combine
 combined = []
 for r in entries:
-    combined.append({
-        'source_type': r.get('type', ''),
-        'title': r.get('title', ''),
-        'url': r.get('url', ''),
-        'doi': r.get('doi', ''),
-        'published_at': r.get('created_at', ''),
-        'repo_first_commit_iso': '',
-        'repo_first_commit_hash': '',
-        'repo_first_commit_author': '',
-        'notes': r.get('notes', '')
-    })
+    combined.append(
+        {
+            "source_type": r.get("type", ""),
+            "title": r.get("title", ""),
+            "url": r.get("url", ""),
+            "doi": r.get("doi", ""),
+            "published_at": r.get("created_at", ""),
+            "repo_first_commit_iso": "",
+            "repo_first_commit_hash": "",
+            "repo_first_commit_author": "",
+            "notes": r.get("notes", ""),
+        }
+    )
 
 for repo, info in repo_map.items():
-    combined.append({
-        'source_type': 'repo',
-        'title': repo,
-        'url': info.get('html_url', ''),
-        'doi': '',
-        'published_at': info.get('first_commit_iso', info.get('created_at', '')),
-        'repo_first_commit_iso': info.get('first_commit_iso', ''),
-        'repo_first_commit_hash': info.get('first_commit_hash', ''),
-        'repo_first_commit_author': info.get('first_commit_author', ''),
-        'notes': info.get('description', 'auto-collected')
-    })
+    combined.append(
+        {
+            "source_type": "repo",
+            "title": repo,
+            "url": info.get("html_url", ""),
+            "doi": "",
+            "published_at": info.get("first_commit_iso", info.get("created_at", "")),
+            "repo_first_commit_iso": info.get("first_commit_iso", ""),
+            "repo_first_commit_hash": info.get("first_commit_hash", ""),
+            "repo_first_commit_author": info.get("first_commit_author", ""),
+            "notes": info.get("description", "auto-collected"),
+        }
+    )
+
 
 def parse_iso(s):
     try:
@@ -72,11 +77,24 @@ def parse_iso(s):
     except Exception:
         return datetime.max
 
-combined_sorted = sorted(combined, key=lambda x: parse_iso(x['published_at'] or '9999-12-31T00:00:00'))
+
+combined_sorted = sorted(
+    combined, key=lambda x: parse_iso(x["published_at"] or "9999-12-31T00:00:00")
+)
 
 Path(out_csv).parent.mkdir(parents=True, exist_ok=True)
-with open(out_csv, 'w', newline='', encoding='utf-8') as f:
-    fieldnames = ['source_type', 'title', 'url', 'doi', 'published_at', 'repo_first_commit_iso', 'repo_first_commit_hash', 'repo_first_commit_author', 'notes']
+with open(out_csv, "w", newline="", encoding="utf-8") as f:
+    fieldnames = [
+        "source_type",
+        "title",
+        "url",
+        "doi",
+        "published_at",
+        "repo_first_commit_iso",
+        "repo_first_commit_hash",
+        "repo_first_commit_author",
+        "notes",
+    ]
     w = csv.DictWriter(f, fieldnames=fieldnames)
     w.writeheader()
     w.writerows(combined_sorted)
