@@ -74,9 +74,10 @@ for repo, info in repo_map.items():
 def parse_iso(s):
     try:
         dt = datetime.fromisoformat(s.replace("Z", "+00:00"))
-        # Normalize to UTC then remove timezone info for consistent sorting
-        if dt.tzinfo is not None:
-            dt = dt.astimezone(timezone.utc).replace(tzinfo=None)
+        # Treat naive datetimes as UTC and normalize all to UTC, then remove timezone
+        if dt.tzinfo is None:
+            dt = dt.replace(tzinfo=timezone.utc)
+        dt = dt.astimezone(timezone.utc).replace(tzinfo=None)
         return dt
     except Exception:
         return datetime.max
