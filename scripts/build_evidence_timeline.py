@@ -11,7 +11,7 @@ Usage:
 
 import csv
 import sys
-from datetime import datetime
+from datetime import datetime, timezone
 from pathlib import Path
 
 if len(sys.argv) != 4:
@@ -73,7 +73,12 @@ for repo, info in repo_map.items():
 
 def parse_iso(s):
     try:
-        return datetime.fromisoformat(s.replace("Z", "+00:00"))
+        dt = datetime.fromisoformat(s.replace("Z", "+00:00"))
+        # Treat naive datetimes as UTC and normalize all to UTC, then remove timezone
+        if dt.tzinfo is None:
+            dt = dt.replace(tzinfo=timezone.utc)
+        dt = dt.astimezone(timezone.utc).replace(tzinfo=None)
+        return dt
     except Exception:
         return datetime.max
 
