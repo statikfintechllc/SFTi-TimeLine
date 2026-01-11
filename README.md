@@ -41,3 +41,11 @@ Reproducible, timestamp-verified chronology for all StatikFinTech, LLC outputs �
 - Safe to rerun (auto-overwrite cleanly).
 - Folders auto-created.
 - ISO-8601 dates ensure chronological sort.
+
+## Repository Metadata
+
+**Recommended Description:**
+> Reproducible, timestamp-verified chronology for StatikFinTech outputs — Medium, Zenodo, and GitHub — combined into one auditable dataset.
+
+**Recommended Topics/Tags:**
+`timeline`, `provenance`, `evidence`, `audit`, `github-api`, `zenodo`, `medium`, `csv`, `chronology`, `python`, `bash`, `data-collection`

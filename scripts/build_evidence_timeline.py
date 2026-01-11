@@ -73,7 +73,11 @@ for repo, info in repo_map.items():
 
 def parse_iso(s):
     try:
-        return datetime.fromisoformat(s.replace("Z", "+00:00"))
+        dt = datetime.fromisoformat(s.replace("Z", "+00:00"))
+        # Return timezone-naive datetime for consistent sorting
+        if dt.tzinfo is not None:
+            dt = dt.replace(tzinfo=None)
+        return dt
     except Exception:
         return datetime.max
 
